@@ -1,8 +1,9 @@
 import java.security.PublicKey;
+import java.util.Objects;
 
 public class Tablero {
 
-    private static final int DIMENSION = 4;
+    private static final int DIMENSION = 3;
     private EstadoCasilla[][] casillas;
 
     public Tablero() {
@@ -12,43 +13,96 @@ public class Tablero {
 
     public void mostrar() {
         for (int i = 0; i < casillas.length; i ++) {
+            System.out.println("+----+----+----+");
             for (int j = 0; j < casillas[i].length; j ++) {
-                System.out.print(casillas[i][j] + "\t");
+                System.out.print("| " + casillas[i][j] + " ");
+                if (j == (casillas.length-1)) {
+                    System.out.print("|");
+                }
             }
             System.out.println("");
         }
+        System.out.println("+----+----+----+");
     }
 
     public boolean hayTresEnRaya() {
-        int contadorO = 0;
-        int contadorX = 0;
-        for (int i = 0; i < casillas.length; i ++) {
-            for (int j = 0; j < casillas[i].length; j ++) {
-                if (casillas[i][j] == EstadoCasilla.FICHA_O) {
-                    contadorO++;
-                } else if (casillas[i][j] == EstadoCasilla.FICHA_X) {
-                    contadorX++;
-                } else if (contadorO == 3 || contadorX == 3) {
-                    return true;
+        boolean fichaX = hayTresEnRaya(EstadoCasilla.FICHA_X);
+        boolean fichaO = hayTresEnRaya(EstadoCasilla.FICHA_O);
+        if (fichaO || fichaX) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean hayTresEnRaya(EstadoCasilla color) {
+        boolean lineaHorizontal = lineasTresEnRaya("horizontal", color);
+        boolean lineaVertical = lineasTresEnRaya("vertical", color);
+        boolean diagonalDalt = lineasTresEnRaya("dalt", color);
+        boolean diagonalBaix = lineasTresEnRaya("baix", color);
+        if (lineaHorizontal || lineaVertical || diagonalDalt || diagonalBaix) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean lineasTresEnRaya (String tipo, EstadoCasilla color) {
+        int contador;
+        for (int i = 0; i < casillas.length; i++) {
+            contador = 0;
+            for (int j = 0; j < casillas.length; j++) {
+                if (Objects.equals(tipo, "horizontal")) {
+                    if (casillas[i][j] == color) {
+                        contador++;
+                    }
+                } else if (Objects.equals(tipo, "vertical")) {
+                    if (casillas[j][i] == color) {
+                        contador++;
+                    }
                 }
+            }
+            if (contador == 3) {
+                return true;
             }
         }
         return false;
     }
 
-    /*private boolean hayTresEnRaya(EstadoCasilla color) {
+    private boolean diagonalTresEnRaya(String tipo, EstadoCasilla color) {
+        int contador;
+        int columna = 0;
+        if (Objects.equals(tipo, "dalt")) {
+            columna = 0;
+        } else if (Objects.equals(tipo, "baix")) {
+            columna = DIMENSION-1;
+        }
+
+        for (int f = 0; f < casillas.length; f++) {
+            contador = 0;
+            if (casillas[f][columna] == color) {
+                contador++;
+            }
+            if (Objects.equals(tipo, "dalt")) {
+                columna++;
+            } else if (Objects.equals(tipo, "baix")) {
+                columna--;
+            }
+            if (contador == 3) {
+                return true;
+            }
+        }
         return false;
-    }*/
+    }
 
     public boolean isOcupada(Coordenada casilla) {
-        if (casillas[casilla.getFila()][casilla.getColumna()] == EstadoCasilla.FICHA_O || casillas[casilla.getFila()][casilla.getColumna()] == EstadoCasilla.FICHA_X) {
+        if (casillas[(casilla.getFila()-1)][(casilla.getColumna()-1)] == EstadoCasilla.FICHA_O || casillas[(casilla.getFila()-1)][(casilla.getColumna()-1)] == EstadoCasilla.FICHA_X) {
             return true;
         }
         return false;
     }
 
     public void ponerFicha(Coordenada casilla, EstadoCasilla color) {
-        casillas[casilla.getFila()][casilla.getColumna()] = color;
+        casillas[(casilla.getFila()-1)][(casilla.getColumna()-1)] = color;
     }
 
     public void vaciar() {
